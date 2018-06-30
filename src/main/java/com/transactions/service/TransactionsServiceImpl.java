@@ -1,95 +1,123 @@
 package com.transactions.service;
 
-import static java.util.stream.Collectors.toList;
+import static java.lang.System.currentTimeMillis;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import static java.lang.System.currentTimeMillis;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.transactions.entity.SummaryOfTransactions;
 import com.transactions.entity.Transaction;
 
+@Service
 public class TransactionsServiceImpl implements TransactionsService {
 
-	LinkedHashMap<Long, Transaction> lastMinuteTransactions = new LinkedHashMap<>();
+	private final static Logger logger = LoggerFactory.getLogger(TransactionsServiceImpl.class);
 
+	LinkedHashMap<Long, SummaryOfTransactions> lastMinuteTransactions = new LinkedHashMap<>(60); // initial capacity 60
+	                                                                                             // initial load factor .75
 	SummaryOfTransactions summary;
-
-	private ReadWriteLock lock = new ReentrantReadWriteLock(true); // fairness mode to prevent starving
+	private ReadWriteLock lock = new ReentrantReadWriteLock(true); // enable fairness to prevent thread starving
 
 	@Override
 	public SummaryOfTransactions getSummary() {
-		Lock readLock = lock.readLock();
-		readLock.lock();
-		try {
-			createLastMinuteSummary(lastMinuteTransactions);
-			if (summary != null)
-				return summary;
-
-			// return default summary with empty values
-			summary = new SummaryOfTransactions();
-			summary.setAvg(0.0);
-			summary.setCount(0L);
-			summary.setMin(0.0);
-			summary.setSum(0.0);
-			summary.setMax(0.0);
-			return summary;
-		} finally {
-			readLock.unlock();
-		}
+		fillLastMinuteSummary(lastMinuteTransactions);
+		return summary;
 
 	}
 
 	// every time new transaction comes update the lastMinute list
 	@Override
 	public boolean addTransaction(Transaction transaction) {
-
-		// TODO handle else condition
-		if (currentTimeMillis() - transaction.getTimestamp() <= 60000
-				&& currentTimeMillis() - transaction.getTimestamp() >= 0) {
+		logger.debug("start adding new transaction");
+		if (currentTimeMillis() - transaction.getTimestamp() <= 60000) {
 			Lock writeLock = lock.writeLock();
+			logger.debug("start writing blocking");
 			writeLock.lock();
+
 			try {
-
+                 // if time stamp exist before add to it the new values
 				if (lastMinuteTransactions.containsKey(transaction.getTimestamp())) {
-					Transaction alreadyExistTransaction = lastMinuteTransactions.get(transaction.getTimestamp());
-					alreadyExistTransaction.setAmount(alreadyExistTransaction.getAmount() + transaction.getAmount());
-					lastMinuteTransactions.put(transaction.getTimestamp(), alreadyExistTransaction);
+					SummaryOfTransactions alreadyExistsummary = lastMinuteTransactions.get(transaction.getTimestamp());
+					alreadyExistsummary.setCount(alreadyExistsummary.getCount() + 1);
+					alreadyExistsummary.setSum(alreadyExistsummary.getSum() + transaction.getAmount());
+					alreadyExistsummary.setAvg(alreadyExistsummary.getSum() / alreadyExistsummary.getCount());
+					if (alreadyExistsummary.getMax() < transaction.getAmount())
+						alreadyExistsummary.setMax(transaction.getAmount());
+					if (alreadyExistsummary.getMin() > transaction.getAmount())
+						alreadyExistsummary.setMin(transaction.getAmount());
 				} else {
-					lastMinuteTransactions.put(transaction.getTimestamp(), transaction);
+					// if new time stamp add a new entry
+					SummaryOfTransactions newSummary = new SummaryOfTransactions();
+					newSummary.setAvg(0.0);
+					newSummary.setTimestamp(transaction.getTimestamp());
+					newSummary.setCount(1L);
+					newSummary.setMax(transaction.getAmount());
+					newSummary.setMin(transaction.getAmount());
+					newSummary.setSum(transaction.getAmount());
+					lastMinuteTransactions.put(newSummary.getTimestamp(), newSummary);
 				}
-
 			} finally {
+				logger.debug("release write lock");
 				writeLock.unlock();
 			}
-			return true;// the transaction created successfully.
-		}else {
-			
-			return false;// the transaction failed
+			logger.debug("the transaction created successfully");
+			return true; // Transaction is within the last Minute
 		}
+
+		else
+			logger.debug("the transaction wasn't within the last minute");
+			return false;// Transaction is not within the last Minute
 
 	}
 
-	private void createLastMinuteSummary(HashMap<Long, Transaction> transactionMap) {
-		summary = new SummaryOfTransactions();
-		// filter to get the last minute transactions only
-		List<Transaction> transactions = new ArrayList<>(transactionMap.values());
-		final List<Double> lastMinuteAmounts = transactions.stream()
-				.filter(transaction -> transaction.getTimestamp() <= 6000).map(Transaction::getAmount)
-				.collect(toList());
-		final Long count = lastMinuteAmounts.stream().count();
-		summary.setCount(count);
-		if (count > 0) {
-			summary.setSum(lastMinuteAmounts.stream().mapToDouble(Double::doubleValue).sum());
-			summary.setAvg(lastMinuteAmounts.stream().mapToDouble(Double::doubleValue).average().getAsDouble());
-			summary.setMax(lastMinuteAmounts.stream().max(Double::compareTo).get());
-			summary.setMin(lastMinuteAmounts.stream().min(Double::compareTo).get());
-		}
+	private void fillLastMinuteSummary(Map<Long, SummaryOfTransactions> lastMinuteTransation) {
+		logger.debug("getting the last minute transactions");
+		List<SummaryOfTransactions> summaries = new ArrayList<>(lastMinuteTransation.values());
+		logger.debug("start reading blocking");
+		Lock readLock = lock.readLock();
+		readLock.lock();
+		try {
+            // filter summaries to get only values of the last minute
+			final List<SummaryOfTransactions> lastMinuteSummaries = summaries.stream()
+					.filter(s -> currentTimeMillis() - s.getTimestamp() <= 60000).collect(Collectors.toList());
 
+			Long count = lastMinuteSummaries.stream().collect(Collectors.summingLong(SummaryOfTransactions::getCount));
+
+			if (count > 0) {
+
+				summary = new SummaryOfTransactions();
+				summary.setCount(count);
+				summary.setSum(
+						lastMinuteSummaries.stream().collect(Collectors.summingDouble(SummaryOfTransactions::getSum)));
+				summary.setAvg(summary.getSum() / summary.getCount());
+				summary.setMax(lastMinuteSummaries.stream().max(Comparator.comparing(SummaryOfTransactions::getMax))
+						.get().getMax());
+				summary.setMin(lastMinuteSummaries.stream().min(Comparator.comparing(SummaryOfTransactions::getMin))
+						.get().getMin());
+			} else {
+				// when count becomes 0 just make empty summary
+				summary = new SummaryOfTransactions();
+				summary.setAvg(0.0);
+				summary.setCount(0L);
+				summary.setMin(0.0);
+				summary.setSum(0.0);
+				summary.setMax(0.0);
+			}
+		} finally {
+			logger.debug("release read lock");
+			readLock.unlock();
+		}
 	}
 
 }

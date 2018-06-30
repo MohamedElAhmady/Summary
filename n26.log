@@ -1,0 +1,7 @@
+2018-06-30 19:15:38 [main] INFO  com.transactions.app.N26Application - Starting N26Application on mo-B5400 with PID 6875 (started by mo in /media/mo/Work/new workspace/n26)
+2018-06-30 19:15:38 [main] DEBUG com.transactions.app.N26Application - Running with Spring Boot v2.0.3.RELEASE, Spring v5.0.7.RELEASE
+2018-06-30 19:15:38 [main] INFO  com.transactions.app.N26Application - No active profile set, falling back to default profiles: default
+2018-06-30 19:15:42 [main] INFO  com.transactions.app.N26Application - Started N26Application in 5.324 seconds (JVM running for 5.918)
+2018-06-30 19:16:05 [http-nio-8083-exec-1] DEBUG c.t.service.TransactionsServiceImpl - getting the last minute transactions
+2018-06-30 19:16:05 [http-nio-8083-exec-1] DEBUG c.t.service.TransactionsServiceImpl - start reading blocking
+2018-06-30 19:16:05 [http-nio-8083-exec-1] DEBUG c.t.service.TransactionsServiceImpl - release read lock

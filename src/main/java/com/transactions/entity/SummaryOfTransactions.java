@@ -1,5 +1,10 @@
 package com.transactions.entity;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class SummaryOfTransactions {
 
 	private Double sum;
@@ -11,7 +16,17 @@ public class SummaryOfTransactions {
 	private Double min;
 
 	private Long count;
-	
+
+	@JsonIgnore
+	private long timestamp;
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
+	}
 
 	public Double getSum() {
 		return sum;
@@ -51,6 +66,21 @@ public class SummaryOfTransactions {
 
 	public void setCount(Long count) {
 		this.count = count;
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 31).append(timestamp).toHashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Transaction) {
+			final Transaction other = (Transaction) obj;
+			return new EqualsBuilder().append(timestamp, other.timestamp).isEquals();
+		} else {
+			return false;
+		}
 	}
 
 }

@@ -1,12 +1,16 @@
 package com.transactions.entity;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Transaction {
 
-	double amount;
-	long timestamp;
+	@NotNull
+	private double amount;
+
+	@NotNull long timestamp;
 
 	public double getAmount() {
 		return amount;
