@@ -1,4 +1,4 @@
-package com.transactions.summary.n26;
+package com.transactions.n26;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
