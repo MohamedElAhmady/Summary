@@ -2,10 +2,10 @@
 -calculate​ ​ realtime​ ​ statistic​ ​ from​ ​ the​ ​ last​ ​ 60​ ​ seconds for transactions
 
 # APIs
-- POST http://localhost:8083/v1/transaction-summary/transaction (to add  transaction)
+- POST http://localhost:8083/v1/transaction-summary/transactions (to add  transaction)
     accept json as body for e.g. 
     { 
 ​ ​ ​ ​ ​ ​ "amount":​ ​ 12.3,
 ​ ​ ​    "timestamp":​ ​ 1478192204000
     }
-- GET http://localhost:8083/v1/transaction-summary/summary (to get summary of the last minute transaction)
+- GET http://localhost:8083/v1/transaction-summary/statistics (to get summary of the last minute transaction)
