@@ -1,5 +1,5 @@
 # Summary
--calculate​ ​ realtime​ ​ statistic​ ​ from​ ​ the​ ​ last​ ​ 60​ ​ seconds
+-calculate​ ​ realtime​ ​ statistic​ ​ from​ ​ the​ ​ last​ ​ 60​ ​ seconds for transactions
 
 # APIs
 - POST http://localhost:8083/v1/transaction-summary/transaction (to add  transaction)
