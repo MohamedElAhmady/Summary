@@ -75,8 +75,8 @@ public class SummaryOfTransactions {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Transaction) {
-			final Transaction other = (Transaction) obj;
+		if (obj instanceof SummaryOfTransactions) {
+			final SummaryOfTransactions other = (SummaryOfTransactions) obj;
 			return new EqualsBuilder().append(timestamp, other.timestamp).isEquals();
 		} else {
 			return false;
