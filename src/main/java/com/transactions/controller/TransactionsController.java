@@ -23,7 +23,7 @@ public class TransactionsController {
 	@Autowired
 	TransactionsService transactionsSevice;
 
-	@PostMapping(path = "/transaction", consumes = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(path = "/transactions", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<String> addTransaction(@RequestBody @Valid Transaction transaction) {
 		boolean created = transactionsSevice.addTransaction(transaction);
 
@@ -36,7 +36,7 @@ public class TransactionsController {
 
 	}
 
-	@GetMapping(path = "/summary", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(path = "/statistics", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SummaryOfTransactions> getLastMinuteTrasactionsSummary() {
 		SummaryOfTransactions summary = transactionsSevice.getSummary();
 		return new ResponseEntity<>(summary, HttpStatus.OK);

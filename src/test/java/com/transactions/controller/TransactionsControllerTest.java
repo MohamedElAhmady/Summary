@@ -41,7 +41,7 @@ public class TransactionsControllerTest {
 		Mockito.when(transactionsService.addTransaction(Mockito.any(Transaction.class))).thenReturn(true);
 		String json = "{\r\n" + "	\"amount\":1.3,\r\n" + "	\"timestamp\":" + currentTimeMillis() + "\n" + "}";
 
-		mvc.perform(post("/v1/transaction-summary/transaction").accept(MediaType.APPLICATION_JSON).content(json)
+		mvc.perform(post("/v1/transaction-summary/transactions").accept(MediaType.APPLICATION_JSON).content(json)
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isCreated());
 
 	}
@@ -52,7 +52,7 @@ public class TransactionsControllerTest {
 		Mockito.when(transactionsService.addTransaction(Mockito.any(Transaction.class))).thenReturn(false);
 		String json = "{\r\n" + "	\"amount\":13.3,\r\n" + "	\"timestamp\":1478192204000\n" + "}";
 
-		mvc.perform(post("/v1/transaction-summary/transaction").accept(MediaType.APPLICATION_JSON).content(json)
+		mvc.perform(post("/v1/transaction-summary/transactions").accept(MediaType.APPLICATION_JSON).content(json)
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNoContent());
 
 	}
@@ -69,7 +69,7 @@ public class TransactionsControllerTest {
 
 		Mockito.when(transactionsService.getSummary()).thenReturn(summary);
 
-		mvc.perform(get("/v1/transaction-summary/summary").contentType(MediaType.APPLICATION_JSON))
+		mvc.perform(get("/v1/transaction-summary/statistics").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 
 	}
