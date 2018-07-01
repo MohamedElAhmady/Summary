@@ -36,7 +36,7 @@ public class TransactionsControllerTest {
 	private TransactionsService transactionsService;
 
 	@Test
-	public void testMakeNewTransactionWithinTheLastMinute() throws Exception {
+	public void testTransactionWithinTheLastMinute() throws Exception {
 		logger.debug("test add transaction within last minute");
 		Mockito.when(transactionsService.addTransaction(Mockito.any(Transaction.class))).thenReturn(true);
 		String json = "{\r\n" + "	\"amount\":1.3,\r\n" + "	\"timestamp\":" + currentTimeMillis() + "\n" + "}";
@@ -47,7 +47,7 @@ public class TransactionsControllerTest {
 	}
 
 	@Test
-	public void testMakeNewTransactionOutTheLastMinute() throws Exception {
+	public void testTransactionOutTheLastMinute() throws Exception {
 		logger.debug("test add transaction not within last minute");
 		Mockito.when(transactionsService.addTransaction(Mockito.any(Transaction.class))).thenReturn(false);
 		String json = "{\r\n" + "	\"amount\":13.3,\r\n" + "	\"timestamp\":1478192204000\n" + "}";

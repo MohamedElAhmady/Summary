@@ -106,7 +106,7 @@ public class TransactionsServiceImpl implements TransactionsService {
 				summary.setMin(lastMinuteSummaries.stream().min(Comparator.comparing(SummaryOfTransactions::getMin))
 						.get().getMin());
 			} else {
-				// when count becomes 0 just make empty summary
+				// when count becomes 0 just make empty summary 
 				summary = new SummaryOfTransactions();
 				summary.setAvg(0.0);
 				summary.setCount(0L);
