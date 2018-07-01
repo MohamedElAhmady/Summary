@@ -38,7 +38,7 @@ public class TransactionsServiceImpl implements TransactionsService {
 
 	// every time new transaction comes update the lastMinute list
 	@Override
-	public boolean addTransaction(Transaction transaction) {
+	public Boolean addTransaction(Transaction transaction) {
 		logger.debug("start adding new transaction");
 		if (currentTimeMillis() - transaction.getTimestamp() <= 60000) {
 			Lock writeLock = lock.writeLock();

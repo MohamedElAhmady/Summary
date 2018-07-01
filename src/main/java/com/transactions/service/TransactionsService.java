@@ -7,5 +7,5 @@ public interface TransactionsService {
 
 	public SummaryOfTransactions getSummary();
 
-	public boolean addTransaction(Transaction transaction);
+	public Boolean addTransaction(Transaction transaction);
 }
